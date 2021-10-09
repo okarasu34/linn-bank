@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  ui:
+    image: 'linnbank-frontend:latest'
+    build:
+      context: ./ui
+    container_name: ui
+    depends_on:
+      - app
+    environment: 
+      - APP_URL=http://app:8080/api/
+    ports:
+      - "80:3000"
+
+  app:
+    image: 'linnbank-backend:latest'
+    build:
+      context: ./api
+    container_name: api
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/bankingapidb
+      - SPRING_DATASOURCE_USERNAME=techprodb_user
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    ports:
+      - "8080:8080"
+          
+  db:
+    image: 'postgres:13.1-alpine'
+    container_name: db
+    environment:
+      - POSTGRES_USER=techprodb_user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=bankingapidb
+
+    ports:
+      - "5432:5432"
+    volumes:
+      - /db-data:/var/lib/postgresql/data/
+
+volumes:
+    db-data:
